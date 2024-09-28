@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz : Fonction de consommation et d'épargne</title>
+    <style>
+        body {
+            font-family: 'Mayan', sans-serif;
+            margin: 0;
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #333;
+            text-align: center;
+        }
+        .quiz-container, .summary {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-image: url('images/back.jpg.webp');
+            background-size: cover;
+            background-position: center;
+        }
+        .question {
+            font-size: 18px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #000;
+        }
+        .choices {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            margin-left: 20%;
+        }
+        .choices li {
+            margin: 8px 0;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: #FF0000;
+            color: white;
+            border-radius: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #CC0000;
+        }
+        .summary {
+            display: none;
+        }
+        .summary ul {
+            list-style: none;
+            padding: 0;
+        }
+        .summary li {
+            text-align: left;
+            margin-left: 20%;
+            margin-bottom: 10px;
+        }
+        .correct {
+            color: green;
+            font-weight: bold;
+        }
+        .incorrect {
+            color: red;
+            font-weight: bold;
+        }
+        .score {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .quiz-container, .summary {
+                max-width: 90%;
+                margin: 20px auto;
+                padding: 15px;
+                border-radius: 10px;
+            }
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+        @media (max-width: 480px) {
+            .quiz-container, .summary {
+                padding: 10px;
+                margin: 10px;
+                border-radius: 10px;
+            }
+            .question {
+                font-size: 16px;
+            }
+            button {
+                font-size: 12px;
+                padding: 6px 12px;
+                border-radius: 10px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .quiz-container, .summary {
+                max-width: 800px;
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container" id="quiz-container">
+    <h2>Quiz : Fonction de consommation et d'épargne</h2>
+    <div id="question-container">
+        <!-- Les questions seront affichées ici dynamiquement -->
+    </div>
+    <button id="next-button" onclick="nextQuestion()">Suivant</button>
+</div>
+
+<div class="summary" id="summary">
+    <h3>Récapitulatif</h3>
+    <ul id="summary-list">
+        <!-- Le récapitulatif des réponses sera affiché ici -->
+    </ul>
+    <div class="score" id="score"></div>
+    <button onclick="restartQuiz()">Recommencer</button>
+</div>
+
+<script>
+    const quizData = [
+        { question: "Si Dorian gagne 1 200 € par mois et en dépense 960 €, quelle est sa propension moyenne à consommer (PMC) ?", choices: ["0,80", "0,60", "1,25", "0,50"], correct: 0 },
+        { question: "Admettons qu’un individu voit son revenu passer de 2 000 € à 3 000 €, et qu’il augmente sa consommation de 600 €. Quelle est sa propension marginale à consommer (PmC) ?", choices: ["0,30", "0,60", "0,20", "0,50"], correct: 1 },
+        { question: "Que se passe-t-il lorsque le revenu disponible augmente, selon la théorie keynésienne ?", choices: ["La propension moyenne à consommer augmente", "La propension marginale à consommer reste la même", "La propension moyenne à consommer diminue", "La propension marginale à épargner augmente"], correct: 2 },
+        { question: "Si une personne consomme 90 % de son revenu mensuel, quelle est sa propension moyenne à épargner (PMS) ?", choices: ["0,20", "0,10", "0,50", "0,40"], correct: 1 },
+        { question: "Lorsque le revenu national d’un pays augmente de 1 000 millions d’euros à la suite d’une augmentation de 250 millions d’euros des dépenses publiques, quel est le multiplicateur budgétaire ?", choices: ["4", "2,5", "1,5", "0,75"], correct: 0 },
+        { question: "Quel type de politique vise à réduire l'inflation en réduisant les dépenses publiques ?", choices: ["Politique expansionniste", "Politique de contraction", "Politique budgétaire neutre", "Politique monétaire souple"], correct: 1 },
+        { question: "Si le gouvernement augmente les dépenses publiques de 500 millions d’euros et que le multiplicateur budgétaire est de 3, de combien le revenu national va-t-il augmenter ?", choices: ["500 millions d’euros", "1 500 millions d’euros", "2 000 millions d’euros", "3 000 millions d’euros"], correct: 1 },
+        { question: "Dans une situation où Y<C + I + G, cela signifie que :", choices: ["L’offre dépasse la demande", "L’offre est égale à la demande", "L’offre est inférieure à la demande", "L’État doit réduire ses dépenses"], correct: 2 },
+        { question: "Une entreprise hésite à investir dans une nouvelle machine car les taux d’intérêt viennent de passer de 3 % à 5 %. Que va-t-il probablement se passer ?", choices: ["L’entreprise va investir davantage", "L’entreprise va attendre que les taux d’intérêt baissent", "L’entreprise va réduire sa production", "L’entreprise va augmenter son épargne"], correct: 1 },
+        { question: "Supposons qu’une augmentation initiale de 1 000 milliards d'euros dans une économie génère une augmentation totale de 5 000 milliards d'euros de revenu national. Quelle est la valeur de la propension marginale à consommer (PmC) ?", choices: ["0,50", "0,80", "0,75", "0,60"], correct: 1 },
+        { question: "Si une entreprise décide d’investir 500 000 € dans une nouvelle usine avec un TRI de 8 %, mais que le taux d’intérêt est de 6 %, que devrait-elle faire ?", choices: ["Ne pas investir, car le TRI est inférieur au taux d'intérêt", "Investir, car le TRI est supérieur au taux d'intérêt", "Reporter l'investissement jusqu’à ce que les taux d’intérêt baissent à 4 %", "Épargner les fonds au lieu d’investir"], correct: 1 },
+        { question: "Que se passe-t-il lorsqu’une entreprise décide de désinvestir en période de crise ?", choices: ["La demande augmente", "La production augmente", "L'offre diminue", "Le revenu national reste inchangé"], correct: 2 },
+        { question: "Quel est le rôle principal de l'État dans l'allocation des ressources ?", choices: ["Produire uniquement des biens privés", "Produire des biens que les acteurs privés ne peuvent ou ne veulent pas produire", "Gérer les banques centrales", "Contrôler l'inflation à travers la politique monétaire"], correct: 1 },
+        { question: "Qu'est-ce que le revenu d'équilibre ?", choices: ["L'égalité entre les impôts et les dépenses publiques", "L'égalité entre l'offre et la demande sur une période", "Le niveau d'emploi dans une économie", "L'écart entre les dépenses publiques et les revenus fiscaux"], correct: 1 },
+        { question: "Quelle est la formule qui détermine le revenu d'équilibre avec des dépenses publiques ?", choices: ["Y = C + I + G", "Y = cY + Co + Io + Go", "Y = Co + Io + Go / (1-c)", "Y = G - I"], correct: 2 },
+        { question: "Comment l'État peut-il intervenir pour résoudre le problème du chômage ?", choices: ["En augmentant les taxes et les impôts", "En fournissant une demande supplémentaire pour stimuler l'emploi", "En réduisant les dépenses publiques", "En augmentant les taux d'intérêt"], correct: 1 },
+        { question: "Qu'est-ce que le multiplicateur budgétaire montre ?", choices: ["L'impact des impôts sur les entreprises", "La manière dont une variation des dépenses publiques affecte le revenu national", "L'effet des politiques monétaires sur l'économie", "La relation entre le taux d'intérêt et le PIB"], correct: 1 }
+    ];
+
+    let currentQuestionIndex = 0;
+    let selectedAnswers = [];
+
+    function loadQuestion() {
+        const container = document.getElementById('question-container');
+        container.innerHTML = '';
+
+        const questionData = quizData[currentQuestionIndex];
+        const questionElem = document.createElement('div');
+        questionElem.className = 'question';
+        questionElem.textContent = questionData.question;
+
+        const choicesElem = document.createElement('ul');
+        choicesElem.className = 'choices';
+
+        questionData.choices.forEach((choice, index) => {
+            const choiceElem = document.createElement('li');
+            const choiceInput = document.createElement('input');
+            choiceInput.type = 'radio';
+            choiceInput.name = 'choice';
+            choiceInput.value = index;
+            choiceInput.id = `choice${index}`;
+            
+            const choiceLabel = document.createElement('label');
+            choiceLabel.htmlFor = `choice${index}`;
+            choiceLabel.textContent = choice;
+
+            choiceElem.appendChild(choiceInput);
+            choiceElem.appendChild(choiceLabel);
+            choicesElem.appendChild(choiceElem);
+        });
+
+        container.appendChild(questionElem);
+        container.appendChild(choicesElem);
+    }
+
+    function nextQuestion() {
+        const selectedChoice = document.querySelector('input[name="choice"]:checked');
+        if (!selectedChoice) {
+            alert("Veuillez sélectionner une réponse !");
+            return;
+        }
+
+        selectedAnswers.push(parseInt(selectedChoice.value));
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            showSummary();
+        }
+    }
+
+    function showSummary() {
+        document.getElementById('quiz-container').style.display = 'none';
+        const summary = document.getElementById('summary');
+        summary.style.display = 'block';
+
+        const summaryList = document.getElementById('summary-list');
+        summaryList.innerHTML = '';
+
+        let correctAnswers = 0;
+
+        quizData.forEach((q, index) => {
+            const summaryItem = document.createElement('li');
+            summaryItem.innerHTML = `
+                <strong>${q.question}</strong><br>
+                <div style="text-align: left; margin-left: 20%;">
+                    Votre réponse: ${q.choices[selectedAnswers[index]]} - 
+                    ${selectedAnswers[index] === q.correct ? '<span class="correct">Correct</span>' : '<span class="incorrect">Incorrect</span>'}<br>
+                    Bonne réponse: ${q.choices[q.correct]}
+                </div>
+            `;
+            summaryList.appendChild(summaryItem);
+            if (selectedAnswers[index] === q.correct) {
+                correctAnswers++;
+            }
+        });
+
+        document.getElementById('score').textContent = `Score: ${correctAnswers} / ${quizData.length}`;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        selectedAnswers = [];
+        document.getElementById('summary').style.display = 'none';
+        document.getElementById('quiz-container').style.display = 'block';
+        loadQuestion();
+    }
+
+    loadQuestion();
+</script>
+
+</body>
+</html>
